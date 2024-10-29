@@ -1,12 +1,17 @@
 #!/bin/bash
 
+# Directorio donde se almacenan los archivos de configuración de las tablas
+dir_config="config"
+
 # Solicitar el nombre de la tabla
 read -p "Ingrese el nombre de la tabla para establecer la clave primaria: " tabla
 
+# Construir la ruta del archivo de la tabla con extensión .conf
+archivo_tabla="${dir_config}/${tabla}.conf"
+
 # Verificar si el archivo de configuración de la tabla existe
-archivo_tabla="${tabla}.txt"
 if [ ! -f "$archivo_tabla" ]; then
-    echo "Error: La tabla '$tabla' no existe o no se ha creado el archivo de configuración."
+    echo "Error: La tabla '$tabla' no existe o no se ha creado el archivo de configuración en '$dir_config'."
     exit 1
 fi
 
