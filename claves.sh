@@ -1,30 +1,32 @@
 #!/bin/bash
 
-# Establecer claves primarias y foráneas
-config_dir="config"
-read -p "Ingrese el nombre de la tabla: " tabla_nombre
-tabla_archivo="$config_dir/$tabla_nombre.conf"
+# Solicitar el nombre de la tabla
+read -p "Ingrese el nombre de la tabla para establecer la clave primaria: " tabla
 
-if [[ ! -f "$tabla_archivo" ]]; then
-    echo "La tabla no existe. Cree la tabla primero."
+# Verificar si el archivo de configuración de la tabla existe
+archivo_tabla="${tabla}.txt"
+if [ ! -f "$archivo_tabla" ]; then
+    echo "Error: La tabla '$tabla' no existe o no se ha creado el archivo de configuración."
     exit 1
 fi
 
-echo "1. Establecer clave primaria"
-echo "2. Establecer clave foránea"
-read -p "Seleccione una opción: " opcion
+# Mostrar los campos disponibles en la tabla
+echo "Campos disponibles en la tabla '$tabla':"
+campos=()
+while IFS=: read -r campo tipo extra; do
+    campos+=("$campo")
+    echo "- $campo"
+done < "$archivo_tabla"
 
-if [[ $opcion -eq 1 ]]; then
-    # Clave primaria
-    read -p "Ingrese el nombre del campo a establecer como clave primaria: " clave_primaria
-    echo "PRIMARY_KEY:$clave_primaria" >> "$tabla_archivo"
-    echo "Clave primaria '$clave_primaria' agregada."
-elif [[ $opcion -eq 2 ]]; then
-    # Clave foránea
-    read -p "Tabla relacionada: " tabla_relacionada
-    read -p "Campo relacionado: " campo_relacionado
-    echo "FOREIGN_KEY:$campo_relacionado:$tabla_relacionada" >> "$tabla_archivo"
-    echo "Clave foránea añadida entre '$tabla_nombre' y '$tabla_relacionada'."
+# Solicitar al usuario el nombre del campo para la clave primaria
+read -p "Ingrese el nombre del campo que desea establecer como clave primaria: " campo_clave
+
+# Verificar si el campo ingresado existe en la lista de campos
+if [[ " ${campos[@]} " =~ " $campo_clave " ]]; then
+    # Si el campo existe, añadir la clave primaria al archivo de configuración
+    echo "PRIMARY KEY ($campo_clave)" >> "$archivo_tabla"
+    echo "Clave primaria establecida en el campo '$campo_clave' de la tabla '$tabla'."
 else
-    echo "Opción no válida."
+    # Mostrar un mensaje de error si el campo no existe
+    echo "Error: El campo '$campo_clave' no existe en la tabla '$tabla'."
 fi
